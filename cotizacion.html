@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INV. REP. CENTRAL · Bodega de Repuestos</title>
+<style>
+:root{
+  --bg:#EAF3FA; --card:#FFFFFF; --ink:#12314B; --ink2:#557089;
+  --line:#CFE0EE; --accent:#1076C8; --navy:#0B3C64; --sky:#8EC9F5;
+  --ok:#157A46; --ok-bg:#E3F2E9;
+  --no:#B03227; --no-bg:#F9E9E7;
+  --tr:#A8720A; --tr-bg:#F8EFDC;
+  --co:#4A5D75; --co-bg:#E9EEF4;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+body.noscroll{overflow:hidden}
+header{background:linear-gradient(135deg,#0B3C64 0%,#1173BE 85%);color:#fff;padding:14px 16px 0;position:sticky;top:0;z-index:10;box-shadow:0 2px 12px rgba(11,60,100,.35)}
+.brand{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+.brand b{font-size:17px;letter-spacing:.3px}
+.brand span{font-size:11.5px;color:#B7DCF8;text-transform:uppercase;letter-spacing:.8px}
+.searchwrap{position:relative;margin-bottom:10px}
+.searchwrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.45}
+#q{width:100%;padding:12px 40px 12px 38px;border:none;border-radius:9px;font-size:16px;background:#fff;color:var(--ink)}
+#q:focus{outline:3px solid var(--sky);outline-offset:1px}
+#clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:#E3EEF7;color:var(--ink2);width:28px;height:28px;border-radius:50%;font-size:15px;cursor:pointer;display:none}
+.chips{padding:2px 0 12px}
+.catselect{width:100%;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.1);color:#fff;padding:11px 36px 11px 14px;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer}
+main{padding:12px 12px 40px;max-width:1200px;margin:0 auto}
+.count{font-size:12.5px;color:var(--ink2);margin:2px 2px 10px;text-transform:uppercase;letter-spacing:.5px}
+.filters{padding-bottom:12px}
+.frow{display:flex;gap:7px;margin-bottom:7px}
+.flabel{flex:none;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:#B7DCF8;width:74px;align-self:center}
+.fbtns{display:flex;gap:6px;flex:1}
+.av{flex:1;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.08);color:#DCEEFB;padding:8px 4px;border-radius:8px;font-size:12.5px;cursor:pointer;white-space:nowrap}
+.av.on{background:#fff;border-color:#fff;color:var(--navy);font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--st,#999);border-radius:10px;padding:12px 14px;display:flex;gap:12px;cursor:pointer;box-shadow:0 1px 4px rgba(11,60,100,.08)}
+.card:active{transform:scale(.995);background:#F7FBFE}
+.card.st-stock{--st:var(--ok)} .card.st-agotado{--st:var(--no)}
+.card.st-transito{--st:var(--tr)} .card.st-cotizacion{--st:var(--co)}
+.ph{flex:none;width:64px;height:64px;border-radius:8px;background:#F0F7FD;border:1px dashed #B5D3EA;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#fff}
+.info{min-width:0;flex:1}
+.de{font-weight:700;font-size:14.5px;line-height:1.3;margin-bottom:3px}
+.mm{font-size:13px;color:var(--ink2);margin-bottom:6px;word-break:break-word}
+.meta{display:flex;flex-wrap:wrap;gap:5px 12px;font-size:12px;color:var(--ink2)}
+.cb{font-family:var(--mono);font-size:12.5px;background:#EDF5FC;border:1px solid var(--line);padding:1px 7px;border-radius:5px;color:var(--ink)}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px;margin-bottom:6px}
+.b-stock{color:var(--ok);background:var(--ok-bg)} .b-agotado{color:var(--no);background:var(--no-bg)}
+.tag-lo{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.3px;color:#A8720A;border:1px solid #A8720A;background:#FCF4E3;padding:1px 6px;border-radius:4px;margin-left:6px}
+.tag-cr{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.5px;color:var(--accent);border:1px solid var(--accent);padding:1px 6px;border-radius:4px;margin-left:6px}
+.precio{font-weight:700;color:var(--ink)}
+.empty{text-align:center;padding:50px 20px;color:var(--ink2)}
+footer{text-align:center;font-size:11.5px;color:var(--ink2);padding:10px 0 30px}
+#overlay{position:fixed;inset:0;background:rgba(20,25,23,.55);z-index:50;display:none;backdrop-filter:blur(2px)}
+#overlay.open{display:block}
+#sheet{position:fixed;left:0;right:0;bottom:0;top:5vh;background:var(--bg);z-index:51;border-radius:18px 18px 0 0;display:none;flex-direction:column;max-width:640px;margin:0 auto;box-shadow:0 -6px 30px rgba(11,60,100,.12)}
+#sheet.open{display:flex;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:translateY(0);opacity:1}}
+.sh-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;flex:none}
+.sh-head .cb{font-size:14px;padding:3px 10px}
+#close{border:none;background:#E3EEF7;color:var(--ink);width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;font-weight:700}
+.sh-body{overflow-y:auto;padding:0 16px 40px;-webkit-overflow-scrolling:touch}
+.bigph{width:100%;aspect-ratio:4/3;background:#fff;border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:6px}
+.bigph img{max-width:100%;max-height:100%;object-fit:contain;cursor:zoom-in}
+.phhint{font-size:11.5px;color:var(--ink2);text-align:center;margin-bottom:14px}
+.sh-title{font-size:18px;font-weight:800;line-height:1.25;margin-bottom:4px}
+.sh-sub{font-size:14px;color:var(--ink2);margin-bottom:12px}
+.stockline{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-left:5px solid var(--st);border-radius:10px;padding:12px 14px;margin-bottom:14px}
+.fields{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.f{display:flex;padding:11px 14px;border-bottom:1px solid var(--line);gap:12px}
+.f .k{flex:none;width:112px;font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink2);padding-top:2px}
+.f .v{font-size:14px;font-weight:500;word-break:break-word}
+#zoom{position:fixed;inset:0;background:#000;z-index:60;display:none;align-items:center;justify-content:center}
+#zoom.open{display:flex}
+#zoom img{max-width:100%;max-height:100%;object-fit:contain}
+#list{display:grid;grid-template-columns:1fr;gap:10px}
+@media (min-width:760px){#list{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1100px){#list{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><b>INV. REP. CENTRAL</b><span>Bodega de Repuestos</span></div>
+  <div class="searchwrap">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+    <input id="q" type="search" placeholder="Código, descripción, marca, modelo..." autocomplete="off">
+    <button id="clear" aria-label="Borrar búsqueda">✕</button>
+  </div>
+  <div class="chips">
+    <select id="chips" class="catselect"></select>
+  </div>
+  <div class="filters">
+    <div class="frow"><span class="flabel">Stock</span>
+      <div class="fbtns" id="avail">
+        <button class="av on" data-av="">Todo</button>
+        <button class="av" data-av="stock">✔ En bodega</button>
+        <button class="av" data-av="agotado">Sin stock</button>
+      </div>
+    </div>
+    <div class="frow"><span class="flabel">Criticidad</span>
+      <div class="fbtns" id="critf">
+        <button class="av on" data-cr="">Todas</button>
+        <button class="av crit" data-cr="CRÍTICO">⚠ Crítico</button>
+        <button class="av" data-cr="MEDIA">Media</button>
+        <button class="av" data-cr="BAJA">Baja</button>
+      </div>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="count" id="count"></div>
+  <div id="list"></div>
+</main>
+<footer id="pagefoot">Actualizado: 11 agosto 2026 · 808 repuestos · Cantidades y precios según inventario de bodega</footer>
+
+<div id="overlay"></div>
+<div id="sheet" role="dialog" aria-modal="true">
+  <div class="sh-head"><span class="cb" id="sh-cb"></span><button id="close" aria-label="Cerrar">✕</button></div>
+  <div class="sh-body" id="sh-body"></div>
+</div>
+<div id="zoom"><button id="zoomclose" aria-label="Cerrar zoom">✕</button><img id="zoomimg" alt=""></div>
+
+<button id="cartfab" aria-label="Ver cotización">🛒<span id="cartbadge" class="zero">0</span></button>
+<div id="cart" role="dialog" aria-modal="true" style="display:none">
+  <div class="sh-head"><b style="font-size:16px">🛒 Mi cotización</b><button id="cartclose" aria-label="Cerrar" style="border:none;background:#E3EEF7;color:var(--ink);width:34px;height:34px;border-radius:50%">✕</button></div>
+  <div class="sh-body">
+    <div id="cartitems"></div>
+    <div id="cartfoot" style="display:none">
+      <div class="ctotal"><span id="ctcount"></span><span>Total estimado: <b id="cttotal"></b></span></div>
+      <div class="cform">
+        <input id="c-req" placeholder="N° de requisición" inputmode="numeric">
+        <input id="c-nombre" placeholder="Nombre de quien solicita" autocomplete="name">
+        <select id="c-suc">
+          <option value="">— Selecciona la sucursal —</option>
+          <option value="AltaPlaza">AltaPlaza</option><option value="Brisas del Golf">Brisas del Golf</option>
+          <option value="__OTRA__">Otra (escribir nombre)</option>
+        </select>
+        <input id="c-sucotra" placeholder="Escribe el nombre de la sucursal" style="display:none">
+        <input id="c-enc" placeholder="Enc. Mantenimiento de tienda o Planta">
+        <textarea id="c-obs" placeholder="Nota / observaciones (opcional)"></textarea>
+      </div>
+      <div class="cactions">
+        <button id="btnprint">🖨 Imprimir / PDF</button>
+        <button id="btnmail">✉️ Enviar por correo</button>
+        <button id="btncopy">📋 Copiar texto</button>
+        <button id="btnclear">🗑 Vaciar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="printdoc" style="display:none"></div>
+<div class="toast" id="toast" style="display:none"></div>
+
+<script>
+// Minimal, cleaned dataset so the page loads correctly. Replace DATA/PHOTOS with your full export when available.
+const DATA = [
+  { it: "1001", cb: 2921007, cat: "REPUESTOS", eq: "Generico", de: "Ejemplo: Tornillo M6", ma: "MarcaX", mo: "", np: "T-M6", pr: "Proveedor", inv: 12, re: 5, pu: 0.5, es: "stock", cr: "BAJA", ti: "Central", lo: 0 }
+];
+const PHOTOS = {}; // map cb -> dataURL
+const EST = { stock: ["En bodega","b-stock","var(--ok)"], agotado: ["Agotado","b-agotado","var(--no)"], transito: ["En tránsito","b-transito","var(--tr)"], cotizacion: ["En cotización","b-cotizacion","var(--co)"] };
+const norm = s => (s||"").toString().toLowerCase().normalize("NFD").replace(/[ -- ]/g,'').replace(/[\u0300-\u036f]/g,"");
+function prep(){ DATA.forEach((d,i) => { d._i=i; d._s = norm([d.cb,d.it,d.de,d.ma,d.mo,d.np,d.eq,d.cat,d.ti].join(" ")); }); }
+prep();
+let cat="", av="", cr="", q="";
+const $=id=>document.getElementById(id);
+function esc(s){return (s||"").toString().replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function fsrc(d){return d.cb ? (PHOTOS[d.cb] || null) : null}
+function title(s){return s? (s.charAt(0)+s.slice(1).toLowerCase()) : ""}
+function money(v){return "$"+Number(v||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,",")}
+function buildChips(){ const cats = {}; DATA.forEach(d => { if(d.cat) cats[d.cat]=(cats[d.cat]||0)+1; }); cat = ""; const sel = $("chips"); if(!sel) return; sel.innerHTML = '<option value="">Todos</option>' + Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`<option value="${esc(c)}">${esc(title(c))} · ${n}</option>`).join(''); }
+buildChips();
+function render(){ const terms = norm(q).split(/\s+/).filter(Boolean); const res = DATA.filter(d => (!cat || d.cat===cat) && (!av || (av==="stock" ? d.es==="stock" : d.es!=="stock")) && (!cr || d.cr===cr) && terms.every(t => d._s.includes(t)) ); $("count").textContent = res.length + (res.length===1?" repuesto":" repuestos"); if(!res.length){ $("list").innerHTML = '<div class="empty"><b>Sin resultados</b>Prueba con otro filtro, el código de barra o parte de la descripción.</div>'; return; } $("list").innerHTML = res.map(d => { const [lbl,cls] = EST[d.es] || [d.es,"",""]; const qty = d.es==="stock" ? ` · ${d.inv} und` : ""; const psrc = fsrc(d); const crit = d.cr==="CRÍTICO" ? '<span class="tag-cr">CRÍTICO</span>' : ''; const lo = d.lo ? '<span class="tag-lo">⚠ Bajo stock</span>' : ''; const precio = d.pu ? `<span class="precio">${money(d.pu)}</span>` : ''; return `<div class="card st-${d.es}" data-i="${d._i}"> <button class="addbtn" data-add="${d._i}" aria-label="Agregar a cotización">+</button> <div class="ph">${psrc?`<img src="${psrc}" alt="">`:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>'}</div> <div class="info"> <span class="badge ${cls}">${lbl}${qty}</span>${crit}${lo} <div class="de">${esc(d.de)}</div> <div class="mm">${d.ma?`<b>${esc(d.ma)}</b>`:""}${d.mo?` · ${esc(d.mo)}`:""}${d.np?` · N/P ${esc(d.np)}`:""}</div> <div class="meta"> ${d.cb?`<span class="cb">${d.cb}</span>`:""} ${d.eq?`<span>${esc(d.eq)}</span>`:""} ${precio} ${d.ti?`<span>📍 ${esc(d.ti)}</span>`:""} </div></div></div>`; }).join(""); }
+
+function openDetail(d){ const [lbl,,color] = EST[d.es]||[d.es,'','var(--ink)']; const src = fsrc(d); $("sh-cb").textContent = d.cb ? "Código "+d.cb : "Sin código asignado"; const stockTxt = d.es==="stock" ? `<span class="n">${d.inv}</span><span class="l"><b style="color:${color}">${lbl}</b><br>unidades disponibles${d.re?` · reorden: ${d.re}`:""}${d.lo?` · <b style="color:#A8720A">⚠ bajo stock</b>`:""}</span>` : `<span class="n" style="font-size:18px">${lbl.toUpperCase()}</span><span class="l">${d.es==="agotado"?"Sin unidades en bodega":"En proceso"}</span>`; const ph = src ? `<div class="bigph"><img id="dimg" src="${src}" alt="Foto del repuesto"></div><div class="phhint">Toca la foto para ampliarla</div>` : `<div class="bigph"><div class="noimg">Sin imagen</div></div>`; $("sh-body").innerHTML = `${ph}<div class="sh-title">${esc(d.de)}${d.cr==="CRÍTICO"?' <span class="tag-cr">CRÍTICO</span>':''}</div><div class="sh-sub">${d.ma?`<b>${esc(d.ma)}</b>`:""}${d.mo?` · ${esc(d.mo)}`:""}</div><div class="stockline" style="--st:${color}">${stockTxt}</div>`; $("overlay").classList.add("open"); $("sheet").classList.add("open"); document.body.classList.add("noscroll"); const dimg = $("dimg"); if(dimg) dimg.onclick = () => { $("zoomimg").src = dimg.src; $("zoom").classList.add("open"); }; }
+
+function closeDetail(){ $("overlay").classList.remove("open"); $("sheet").classList.remove("open"); document.body.classList.remove("noscroll"); }
+
+$("list").addEventListener("click", e => { const ab = e.target.closest(".addbtn"); if(ab){ cartAdd(+ab.dataset.add, 1); return; } const c = e.target.closest(".card"); if(c) openDetail(DATA[+c.dataset.i]); });
+$("close").onclick = closeDetail; $("overlay").onclick = () => { closeDetail(); cartClose(); };
+$("zoom").onclick = () => $("zoom").classList.remove("open"); document.addEventListener("keydown", e => { if(e.key==="Escape"){ $("zoom").classList.remove("open"); closeDetail(); cartClose(); } });
+
+$("q").addEventListener("input", e => { q=e.target.value; $("clear").style.display=q?"block":"none"; render(); });
+$("clear").onclick = () => { q=""; $("q").value=""; $("clear").style.display="none"; render(); $("q").focus(); };
+$("chips").addEventListener("change", e => { cat = e.target.value; render(); });
+$("avail").addEventListener("click", e => { const b = e.target.closest(".av"); if(!b) return; document.querySelectorAll("#avail .av").forEach(c=>c.classList.remove("on")); b.classList.add("on"); av=b.dataset.av; render(); });
+$("critf").addEventListener("click", e => { const b = e.target.closest(".av"); if(!b) return; document.querySelectorAll("#critf .av").forEach(c=>c.classList.remove("on")); b.classList.add("on"); cr=b.dataset.cr; render(); });
+
+// ============ COTIZACIÓN (carrito) ============
+let CART = {};
+try { CART = JSON.parse(localStorage.getItem("cotizacion")||"{}"); } catch(e){ CART = {}; }
+function cartSave(){ try{ localStorage.setItem("cotizacion", JSON.stringify(CART)); }catch(e){} }
+function cartCount(){ return Object.values(CART).reduce((a,b)=>a+b,0); }
+function cartBadge(){ const n = cartCount(); const b = $("cartbadge"); b.textContent = n; b.classList.toggle("zero", n===0); }
+function toast(msg){ const t = $("toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(t._h); t._h = setTimeout(()=>t.style.display = "none", 1600); }
+function cartAdd(i, qty){ CART[i] = (CART[i]||0) + qty; cartSave(); cartBadge(); toast("✓ Agregado: " + (DATA[i].de.length>34 ? DATA[i].de.slice(0,34)+"…" : DATA[i].de)); }
+function cartRender(){ const keys = Object.keys(CART); if(!keys.length){ $("cartitems").innerHTML = '<div class="cempty"><b>Tu cotización está vacía</b>Usa el botón + de cualquier repuesto para agregarlo.</div>'; $("cartfoot").style.display = "none"; return; } $("cartfoot").style.display = "block"; let total = 0, sinPrecio = 0; $("cartitems").innerHTML = keys.map(k => { const d = DATA[+k], q = CART[k]; if(d.pu) total += d.pu*q; else sinPrecio++; const src = fsrc(d); return `<div class="ci"><div class="cph">${src?`<img src="${src}" alt="">`:'📦'}</div><div class="cinfo"><div class="cde">${esc(d.de)}</div><div class="ccb">${d.cb||"sin código"}</div><div class="cpu">${d.pu?money(d.pu)+" c/u · subtotal "+money(d.pu*q):"precio por cotizar"}</div></div><div class="qty"><button data-cm="${k}">−</button><span>${q}</span><button data-cp="${k}">+</button></div><button class="cdel" data-cx="${k}" aria-label="Quitar">🗑</button></div>`; }).join(""); $("ctcount").textContent = cartCount() + " unidades · " + keys.length + " repuestos" + (sinPrecio?` (${sinPrecio} sin precio)`:"" ); $("cttotal").textContent = money(total); }
+function cartOpen(){ cartRender(); $("overlay").classList.add("open"); $("cart").style.display = "block"; document.body.classList.add("noscroll"); }
+function cartClose(){ $("cart").style.display = "none"; $("overlay").classList.remove("open"); document.body.classList.remove("noscroll"); }
+$("cartfab").onclick = cartOpen; $("cartclose").onclick = cartClose;
+$("cartitems").addEventListener("click", e => { const cm = e.target.closest("[data-cm]"), cp = e.target.closest("[data-cp]"), cx = e.target.closest("[data-cx]"); if(cm){ const k=cm.dataset.cm; CART[k]--; if(CART[k]<1) delete CART[k]; } else if(cp){ CART[cp.dataset.cp]++; } else if(cx){ delete CART[cx.dataset.cx]; } else return; cartSave(); cartBadge(); cartRender(); });
+
+$("btnclear").onclick = () => { if(confirm("¿Vaciar toda la cotización?")){ CART={}; cartSave(); cartBadge(); cartRender(); } };
+
+// Print / copy / mail simplified
+function quoteLines(){ return Object.keys(CART).map(k => { const d = DATA[+k], q = CART[k]; return {cb:d.cb||"", de:d.de, mm:[d.ma,d.mo].filter(Boolean).join(" "), cat:d.cat?title(d.cat):"", q, pu:d.pu, sub:d.pu?d.pu*q:0}; }); }
+function quoteMeta(){ return { req: ($("c-req").value.trim() || "000001"), nombre: $("c-nombre").value.trim(), suc: $("c-suc").value, enc: $("c-enc").value.trim(), obs: $("c-obs").value.trim(), fecha: new Date().toLocaleDateString("es-PA",{day:"2-digit",month:"2-digit",year:"numeric"}) }; }
+function quoteText(){ const m = quoteMeta(), L = quoteLines(); let total = 0; let t = "INGENIERÍA Y SERVICIOS TÉCNICOS — ORDEN DE REQUISICIÓN N° " + m.req + "\n"; L.forEach((l,i) => { total += l.sub; t += `${i+1}. [${l.cb}] ${l.de} — ${l.q} und${l.pu?" × "+money(l.pu)+" = "+money(l.sub):" (precio por cotizar)"}\n`; }); t += "\nTOTAL UND: " + Object.values(CART).reduce((a,b)=>a+b,0) + "   TOTAL B/. " + money(total) + "\n"; if(m.obs) t += "\nNota: " + m.obs + "\n"; return t; }
+$("btnmail").onclick = () => { if(!cartCount()) return; const asunto = "Orden de requisición"; location.href = "mailto:?subject=" + encodeURIComponent(asunto) + "&body=" + encodeURIComponent(quoteText()); };
+$("btncopy").onclick = async () => { if(!cartCount()) return; try { await navigator.clipboard.writeText(quoteText()); toast("✓ Copiado — pégalo en WhatsApp o correo"); } catch(e){ const ta = document.createElement("textarea"); ta.value = quoteText(); document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); toast("✓ Copiado"); } };
+$("btnprint").onclick = () => { if(!cartCount()) return; const m = quoteMeta(), L = quoteLines(); let total = 0, und = 0; let filas = ""; L.forEach((l,i) => { total += l.sub; und += l.q; filas += `<tr><td class="pc">${i+1}</td><td class="pc pm">${l.cb}</td><td class="pc pq">${l.q}</td><td class="pd">${esc(l.de)}</td><td class="pc pcat">${esc(l.cat||"")}</td><td class="pr">${l.pu?"B/."+l.pu.toFixed(2):"—"}</td><td class="pr pb">${l.pu?"B/."+l.sub.toFixed(2):"—"}</td></tr>`; }); $("printdoc").innerHTML = `<div style="font-family:Arial,Helvetica,sans-serif;color:#12314B">${filas}</div>`; window.print(); };
+
+cartBadge(); render();
+</script>
+</body>
+</html>
